@@ -1,0 +1,25 @@
+h1 {
+  font-family: "lets_go_digitalregular";
+  text-align: center;
+}
+
+#calculator {
+  margin-left: 40rem;
+  margin-right: 40rem;
+}
+
+#display {
+  display: flex;
+  justify-content: flex-end;
+  min-height: 3rem;
+  min-width: 1rem;
+  font-family: "lets_go_digitalregular";
+  font-size: 3rem;
+  background-color: rgb(233, 220, 220);
+  text-shadow: 3px 3px rgba(0, 0, 0, 0.5);
+  margin: 3.5rem;
+}
+
+.pressed {
+  background-color: yellow;
+}
