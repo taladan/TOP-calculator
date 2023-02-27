@@ -80,11 +80,16 @@ The calculator container should also have four seperate containers within it:
 
 ### Event logic
 
-There will be two even listeners on the window for keydown events and one event listener on the calculator for mouse click events.
+There will be three event listeners on the window:
 
-The first window event listener will handle the key logic, the second will handle the animation logic for the buttons. The mouse click on the buttons will be styled the same as the animation for the keys via mouse:active
+- keydown events to run keyHandler
+- keydown event to run addAnimation
+- keyup event to run remove
 
-The calculator listener will handle button presses - animation should go through styling.
+There will be one event listener on the calculator container:
+- click events to run mouseHandler
+
+The mouse click on the buttons will be styled the same as the animation for the keys via mouse:active
 
 When a user clicks a button or hits a button on the keyboard we need to:
 
@@ -236,24 +241,30 @@ The operator, when entered, will call the correct key function passing values `a
 
 ```js
 // syntax
+let PREVIOUS_OPERATION = ""
 function operatorHandler(operator) {
   const a = RUNNING_TOTAL||0;
   const b = display.get;
   switch (operator) {
     case "+":
+	  PREVIOUS_OPERATION = operator;
       return add(a, b);
       break;
     case "-":
+	  PREVIOUS_OPERATION = operator;
       return subtract(a, b);
       break;
     case "*":
+	  PREVIOUS_OPERATION = operator;
       return multiply(a, b);
       break;
     case "/":
+	  PREVIOUS_OPERATION = operator;
       return divide(a, b);
       break;
     case "=":
-      return total(a, b);
+	  PREVIOUS_OPERATION = "";
+      return total(PREVIOUS_OPERATION,a, b);
       break;
   }
 }
@@ -380,4 +391,11 @@ function add(a, b) {
 
 #### Total
 
-Total is a special case. It takes the RUNNING_TOTAL and current display and performs the operation called on them, then clears RUNNING_TOTAL and leaves the displayed total value up.
+Total is a special case. It takes the RUNNING_TOTAL and current display and performs the previous operation called on them, then clears RUNNING_TOTAL and leaves the displayed total value up.
+
+```js
+//syntax
+function total(operator, a, b) {
+	
+}
+```
