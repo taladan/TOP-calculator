@@ -74,15 +74,15 @@ To be able to catch keyboard numbers and operators that are in the calculator co
 The calculator container should also have four seperate containers within it:
 
 1. A display container that has the current value being entered/operated on and/or the totalled value
-2. A numbers container that just has numeric buttons (0-9 and .)
-3. An operators container that just has operator buttons (+, -, \*, /)
-4. A specials container that just has special buttons (C, AC, Backspace)
+2. A specials conatiner that has special buttons (C, Backspace) the specials should be below the display
+3. A numbers container that just has numeric buttons (0-9 and .) The buttons should be below the specials
+4. An operators container that just has operator buttons (+, -, \*, /) The operators should be to the right of the buttons
 
 ### Event logic
 
 There will be two even listeners on the window for keydown events and at least one event listener on the calculator for mouse click events.
 
-The first window event listener will handle the key logic, the second will handle the animation logic for the buttons.
+The first window event listener will handle the key logic, the second will handle the animation logic for the buttons. The mouse click on the buttons will be styled the same as the animation for the keys via mouse:active
 
 The calculator listener will handle button presses - animation should go through styling.
 
@@ -146,7 +146,7 @@ const specialButtons = getButtonTexts(
 Once we have all of the texts from each button, we can handle the key properly.
 
 - Test to see if the key is in the list of buttons
-- If key is in buttons, determine if it's a number, operator, or special and call the appropriate function
+- If key is in the list of buttons, determine if it's a number, operator, or special and call the appropriate function
 
 ```js
 // syntax
@@ -155,10 +155,11 @@ function keyHandler(event){
   let key = event.key;
   switch buttonValues.includes(key){
     case numberButtons.includes(key):
-      numberHandler(key);
+      let numberArray = numberHandler.add(key);
+	  display.set(numberArray);
       break;
     case operatorButtons.includes(key):
-      operatorHandler(key);
+      display.set(operatorHandler(key));
       break;
     case specialButtons.includes(key):
       specialHandler(key);
@@ -170,17 +171,21 @@ function keyHandler(event){
 ```
 
 ##### Mouse Handler
+The mouse handler takes care of seeing if the mouse has clicked on a button in the body of the calculator.  The functionality of a mouse click should be identical to the functionality of a key press with regards to inputting numbers, operators, and special keys.
 
 ```js
 // syntax
 
-function mouseHandler() {}
+function mouseHandler(event) {
+  let target = event.target;
+  
+}
 ```
 
 ##### Animation Handler
 
 ```js
-// syntax
+	// syntax
 
 function animationHandler() {}
 ```
@@ -189,20 +194,24 @@ function animationHandler() {}
 
 #### Number Handling
 
-Numbers will be entered one at a time as strings, building a total 'number' that some operation is to be done on. For handling the numbers, we will be using an array that accumulates each string 'digit' that is entered. Decimal numbers should be handled sanely.
-
-- string digits are pushed to an array as they are entered
-- Once a number is pushed onto the array, it should push to [[#Display Handling]]
+Numbers will be entered one at a time as strings, building a total 'number' that some operation is to be done on. For handling the numbers, we will be using an array that accumulates each string 'digit' that is entered. Decimal numbers should be handled sanely. String digits are pushed to an array as they are entered. The number handler will need its own methods:
+- add() - to add a character and return the string for display
+- remove() - to remove a character from the rightmost position and return the string for display
 
 ```js
 // syntax
 let STRING_DIGITS_ARRAY = [];
-function numberHandler(char) {
+const numberHandler = add(char) {
   if (char === "." && STRING_DIGITS_ARRAY.includes(char)) {
-    return STRING_DIGITS_ARRAY;
+    return STRING_DIGITS_ARRAY.join("");
   } else {
     STRING_DIGITS_ARRAY.push(s);
-    return STRING_DIGITS_ARRAY;
+    return STRING_DIGITS_ARRAY.join("");
+  },
+  remove(){
+    if (display.get > 0){
+      return display.get.substring(0, display.get.length - 1);
+    }
   }
 }
 ```
@@ -210,25 +219,21 @@ function numberHandler(char) {
 #### Operator Handling
 
 First convert the two number strings created in [[#Number Handling]] to floats
-
-```js
-const a = myArray[0];
-const b = myArray[1];
-```
-
 Each operator will have its own [[#Operator functions]] and will be identified by key:
 
 - `+`: [[#Add]] two numbers
 - `-` [[#Subtract]] two numbers
 - `*` [[#Multiply]] two numbers
-- `/` [[#Divide]]two numbers
+- `/` [[#Divide]] two numbers
 - `=` [[#Total]] of the running operation
 
 The operator, when entered, will call the correct key function passing values `a` and `b` and return the result to [[#Number Handling]]
 
 ```js
 // syntax
-function operatorHandler(a, b, operator) {
+function operatorHandler(operator) {
+  const a = RUNNING_TOTAL||0;
+  const b = display.get;
   switch (operator) {
     case "+":
       return add(a, b);
@@ -305,7 +310,7 @@ function specialHandler(key){
       display.set("C");
       break;
     case "Backspace":
-
+	  numberHandler.remove();
       break;
     case "Delete":
       break;
