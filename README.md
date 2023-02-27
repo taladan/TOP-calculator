@@ -101,7 +101,8 @@ When a user clicks a button or hits a button on the keyboard we need to:
 // syntax
 
 window.addEventListener("keydown", keyHandler);
-window.addEventListener("keydown", animationHandler);
+window.addEventListener("keydown", addAnimation);
+window.addEventListener("keyup", removeAnimation);
 
 const calculator = document.getElementById("container");
 calculator.addEventListener("click", mouseHandler);
@@ -191,7 +192,7 @@ function mouseHandler(event) {
 ```js
 	// syntax
 
-function animationHandler() {}
+function addAnimation() {}
 ```
 
 ### Needed functions
@@ -321,13 +322,14 @@ function specialHandler(key){
 Animation handling will be done by CSS, to ensure handling is applied to the active we add a class to the button, the class will be styled by the css.
 
 ```js
-function animationHandler(event){
-  let target = event.target
- if (event.type === "keydown"){
+function addAnimation(event){
+  let target = event.target;
   target.classList.add("animate");
- } else if (event.type === "keyup"){
-   target.classList.remove("animate");
- }
+}
+
+function removeAnimation(event){
+  let target = event.target;
+  target.classList.remove("animate");
 }
 ```
 
