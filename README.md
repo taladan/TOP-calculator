@@ -301,7 +301,6 @@ Special keys are currently "C", "Escape", "Backspace", "Delete".
 - Escape: This will clear the display and dump the value of the global RUNNING_TOTAL to 0, effectively clearing state.
 - C: Same as escape
 - Backspace: remove one character from the rightmost end of the number string
-- Delete: delete the entire number string and repopulate with the previous value
 
 ```js
 //syntax
@@ -313,13 +312,13 @@ function specialHandler(key){
     case "Backspace":
 	  numberHandler.remove();
       break;
-    case "Delete":
-      break;
 }
 ```
 
 #### Animation Handling
-Animation handling will be done by CSS, to ensure handling is applied to the active we add a class to the button, the class will be styled by the css.
+Animation handling will be done by CSS: 
+- On keydown we add the class `animate` to the button, the class will be styled by the css.
+- On keyup we remove the class `animate` from the button, the class will be styled by the css.
 
 ```js
 function addAnimation(event){
