@@ -322,6 +322,18 @@ function specialHandler(key){
 ```
 
 #### Animation Handling
+Animation handling will be done by CSS, to ensure handling is applied to the active we add a class to the button, the class will be styled by the css.
+
+```js
+function animationHandler(event){
+  let target = event.target
+ if (event.type === "keydown"){
+  target.classList.add("animate");
+ } else if (event.type === "keyup"){
+   target.classList.remove("animate");
+ }
+}
+```
 
 ### Operator functions
 
