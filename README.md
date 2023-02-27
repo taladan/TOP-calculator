@@ -80,7 +80,7 @@ The calculator container should also have four seperate containers within it:
 
 ### Event logic
 
-There will be two even listeners on the window for keydown events and at least one event listener on the calculator for mouse click events.
+There will be two even listeners on the window for keydown events and one event listener on the calculator for mouse click events.
 
 The first window event listener will handle the key logic, the second will handle the animation logic for the buttons. The mouse click on the buttons will be styled the same as the animation for the keys via mouse:active
 
@@ -111,14 +111,7 @@ calculator.addEventListener("click", mouseHandler);
 
 ##### Key Handler
 
-When a key is pressed, it's captured and sent to `keyHandler`. We are listening for values that exist within the scope of the body of the calculator. To have something to match against, we need an array of all the values from the document's buttons. To do that, first we gather an array of all the buttons:
-
-```js
-// syntax
-const allButtons = document.querySelectorAll("button");
-```
-
-Then we iterate through the array of buttons and make an array of all the texts in each button:
+When a key is pressed, it's captured and sent to `keyHandler`. We are listening for values that exist within the scope of the body of the calculator. To have something to match against, we need an array of all the values from the document's buttons. 
 
 We also need arrays that store the values of just buttons in the numbers container, the operators container and the specials container. getButtonTexts should be its own function.
 
@@ -144,16 +137,14 @@ const specialButtons = getButtonTexts(
 ```
 
 Once we have all of the texts from each button, we can handle the key properly.
-
-- Test to see if the key is in the list of buttons
-- If key is in the list of buttons, determine if it's a number, operator, or special and call the appropriate function
+Determine if button pressed is a number, operator, or special and call the appropriate function, if it's not any of these, do nothing
 
 ```js
 // syntax
 
 function keyHandler(event){
   let key = event.key;
-  switch buttonValues.includes(key){
+  switch key{
     case numberButtons.includes(key):
       let numberArray = numberHandler.add(key);
 	  display.set(numberArray);
@@ -165,7 +156,7 @@ function keyHandler(event){
       specialHandler(key);
       break;
     default:
-      // something broke
+      // not a valid button, do nothing
   };
 };
 ```
@@ -178,7 +169,20 @@ The mouse handler takes care of seeing if the mouse has clicked on a button in t
 
 function mouseHandler(event) {
   let target = event.target;
-  
+  let key = target.textContent;
+    switch key{
+    case numberButtons.includes(key):
+      let numberArray = numberHandler.add(key);
+	  display.set(numberArray);
+      break;
+    case operatorButtons.includes(key):
+      display.set(operatorHandler(key));
+      break;
+    case specialButtons.includes(key):
+      specialHandler(key);
+      break;
+    default:
+      // not a valid button, do nothing
 }
 ```
 
