@@ -251,9 +251,14 @@ function operatorHandler(a, b, operator) {
 
 #### Display Handling
 
-The display will be a div of its own that holds text values of mathematical data. It recieves data and displays it in `display.textContent`. If a person enters an operator, they will want to be adding whatever was previously in the display to whatever they enter next. This is handled in number handling, so we only need to worry about displaying the current total. We can however store the previous total in a hidden div so that if someone enters a series of number + operator + number + operator + ... characters, we can store the value in a global variable so we can maintain state as long as the user doesn't refresh the screen. If the operator 'C' is passed, clear the screen and dump the running total. Only the special handling should be sending operator codes to the setDisplay.
+The display will be a div of its own that holds text values of mathematical data. It recieves data and displays it in `display.textContent`. If a person enters an operator, they will want to be adding whatever was previously in the display to whatever they enter next. This is handled in number handling, so we only need to worry about displaying the current total. We can however store the previous total in a hidden div so that if someone enters a series of number + operator + number + operator + ... characters, we can store the value in a global variable so we can maintain state as long as the user doesn't refresh the screen. 
 
-##### Setting the display
+The display object will have the following methods:
+- set()
+- get()
+- clear()
+
+##### Display
 
 ```js
 //syntax
