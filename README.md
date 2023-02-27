@@ -67,7 +67,7 @@ The user should be able to enter numbers by either:
 
 The body of the calculator should be a single container. This container should have a `calculator.addEventListener` that detects mouse clicks (mousedown and mouseup).
 
-To be able to catch keyboard numbers and operators that are in the calculator container there has to be a `window.addEventListner` that is listening for key presses.
+To be able to catch keyboard numbers and operators that are in the calculator container there has to be a `window.addEventListener` that is listening for key presses.
 
 ### Containers
 
@@ -77,6 +77,13 @@ The calculator container should also have four seperate containers within it:
 2. A specials conatiner that has special buttons (C, Backspace) the specials should be below the display
 3. A numbers container that just has numeric buttons (0-9 and .) The buttons should be below the specials
 4. An operators container that just has operator buttons (+, -, \*, /) The operators should be to the right of the buttons
+
+### Data Store
+So, in discussing some of the thickets of weeds that I keep running into, @wavE suggested I look at doing something like this:  Push each number and operator entered into an array.  When calling `=` you should just take the last three values from the array and run that operation.  This actually would work for all operations if we only worry about ever pulling the last three values from the array.  If we do:
+`10 - 5`, we parse the array values and push the total onto the array as the array[0], then clear array[1] and array[2].  That way, array[0] always acts as our running total, array[1] acts as our operator store and array[3] acts as our last entered number.
+
+So, what should handle pushing numbers onto our array?  The event handler, as we are working with changing values of stuff, that's event-ish.  pushing to display is also eventish, so any time we change the display, we'll want the eventhanderl to update that.
+
 
 ### Event logic
 
@@ -150,19 +157,7 @@ Determine if button pressed is a number, operator, or special and call the appro
 
 function keyHandler(event){
   let key = event.key;
-  switch key{
-    case numberButtons.includes(key):
-      let numberArray = numberHandler.add(key);
-	  display.set(numberArray);
-      break;
-    case operatorButtons.includes(key):
-      display.set(operatorHandler(key));
-      break;
-    case specialButtons.includes(key):
-      specialHandler(key);
-      break;
-    default:
-      // not a valid button, do nothing
+  eventHandler(key);
   };
 };
 ```
@@ -174,21 +169,30 @@ The mouse handler takes care of seeing if the mouse has clicked on a button in t
 // syntax
 
 function mouseHandler(event) {
-  let target = event.target;
-  let key = target.textContent;
-    switch key{
+  let key = event.target.textContent;
+  eventHandler(key);
+}
+```
+
+##### Event Handler
+
+```js
+const CALCULATION_ARRAY = []
+function eventHandler(key){
+  switch key{
     case numberButtons.includes(key):
-      let numberArray = numberHandler.add(key);
+	  let numberArray = numberHandler.add(key);
 	  display.set(numberArray);
-      break;
-    case operatorButtons.includes(key):
-      display.set(operatorHandler(key));
-      break;
-    case specialButtons.includes(key):
-      specialHandler(key);
-      break;
-    default:
-      // not a valid button, do nothing
+	  break;
+	case operatorButtons.includes(key):
+	  display.set(operatorHandler(key));
+	  break;
+	case specialButtons.includes(key):
+	  specialHandler(key);
+	  break;
+	default:
+	  // not a valid button, do nothing
+  }
 }
 ```
 
@@ -243,7 +247,7 @@ The operator, when entered, will call the correct key function passing values `a
 // syntax
 let PREVIOUS_OPERATION = ""
 function operatorHandler(operator) {
-  const a = RUNNING_TOTAL||0;
+  const a = CALCULATION_ARRAY||0;
   const b = display.get;
   switch (operator) {
     case "+":
@@ -283,15 +287,15 @@ The display object will have the following methods:
 
 ```js
 //syntax
-// here RUNNING_TOTAL is a global variable to maintain state
-let RUNNING_TOTAL;
+// here CALCULATION_ARRAY is a global variable to maintain state
+let CALCULATION_ARRAY;
 const display = {
   // method to set the value of the display
   set(value) {
     // if no value, set 0
     value = value || 0;
     const display = document.getElementByID("display");
-    RUNNING_TOTAL = display.textContent;
+    CALCULATION_ARRAY = display.textContent;
   },
   // method to get the value of the display
   get() {
@@ -300,7 +304,7 @@ const display = {
   // method to clear the screen
   clear() {
       display.textContent = "";
-      RUNNING_TOTAL = 0;
+      CALCULATION_ARRAY = 0;
   },
 };
 ```
@@ -309,7 +313,7 @@ const display = {
 
 Special keys are currently "C", "Escape", "Backspace", "Delete".
 
-- Escape: This will clear the display and dump the value of the global RUNNING_TOTAL to 0, effectively clearing state.
+- Escape: This will clear the display and dump the value of the global CALCULATION_ARRAY to 0, effectively clearing state.
 - C: Same as escape
 - Backspace: remove one character from the rightmost end of the number string
 
@@ -390,12 +394,3 @@ function add(a, b) {
 ```
 
 #### Total
-
-Total is a special case. It takes the RUNNING_TOTAL and current display and performs the previous operation called on them, then clears RUNNING_TOTAL and leaves the displayed total value up.
-
-```js
-//syntax
-function total(operator, a, b) {
-	
-}
-```
