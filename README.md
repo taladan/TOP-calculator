@@ -287,12 +287,8 @@ const display = {
   },
   // method to clear the screen
   clear() {
-    if (operator == "C") {
       display.textContent = "";
       RUNNING_TOTAL = 0;
-    } else {
-      display.textContent(value);
-    }
   },
 };
 ```
