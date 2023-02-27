@@ -66,13 +66,15 @@ function keyConvertEvent(event) {
 // convert and pass to events
 function mouseConvertEvent(event) {
   let key = event.target.textContent;
-  event(key);
+  events(key);
 }
 
 function event(key) {
   switch (true) {
     case numberButtons.includes(key):
       console.log("Button in number list");
+      // numbers sent to be accumulated and returned
+
       break;
     case operatorButtons.includes(key):
       console.log("Button in operator list");
