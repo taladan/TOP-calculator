@@ -43,6 +43,26 @@ const specialButtons = getButtonTexts(
   Array.from(specials.querySelectorAll("button"))
 );
 
+//
+// necessary values
+//
+
+const display = {
+  set(value) {
+    value = value || 0;
+    return (document.getElementById("display").textContent = value);
+  },
+  get() {
+    return document.getElementById("display").textContent;
+  },
+  clear() {
+    const display = (document.getElementById("display").textContent = "");
+  },
+};
+
+// Can't touch this
+console.log(display.set("Can't touch this"));
+
 /* Event Handling */
 
 // convert and pass to events
@@ -59,7 +79,7 @@ function keyConvertEvent(event) {
   }
 
   if (allButtons.includes(key)) {
-    event(key);
+    events(key);
   }
 }
 
@@ -69,11 +89,18 @@ function mouseConvertEvent(event) {
   events(key);
 }
 
-function event(key) {
+function events(key) {
   switch (true) {
     case numberButtons.includes(key):
       console.log("Button in number list");
       // numbers sent to be accumulated and returned
+      let currentNumber = getCurrentNumberFrom(key);
+
+      //send current number to display
+      display.set();
+
+      // store current number in arithmeticArray[]
+      //
 
       break;
     case operatorButtons.includes(key):
@@ -92,6 +119,10 @@ function addAnimation(e) {
 }
 
 function removeAnimation(e) {
+  //pass
+}
+
+function getCurrentNumberFrom(key) {
   //pass
 }
 
