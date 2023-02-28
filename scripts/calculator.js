@@ -43,14 +43,12 @@ const specialButtons = getButtonTexts(
   Array.from(specials.querySelectorAll("button"))
 );
 
-//
 // necessary values
-//
-
+const arithmeticObject = { left: "", operator: "", right: "" };
 const display = {
   set(value) {
-    value = value || 0;
-    return (document.getElementById("display").textContent = value);
+    //value = value || 0;
+    document.getElementById("display").textContent = value;
   },
   get() {
     return document.getElementById("display").textContent;
@@ -59,9 +57,6 @@ const display = {
     const display = (document.getElementById("display").textContent = "");
   },
 };
-
-// Can't touch this
-console.log(display.set("Can't touch this"));
 
 /* Event Handling */
 
@@ -90,27 +85,81 @@ function mouseConvertEvent(event) {
 }
 
 function events(key) {
-  switch (true) {
-    case numberButtons.includes(key):
-      console.log("Button in number list");
-      // numbers sent to be accumulated and returned
-      let currentNumber = getCurrentNumberFrom(key);
+  // we need to deal with special keys:
+  if (numberButtons.includes(key) || operatorButtons.includes(key)) {
+    display.set(stowArithmetic(arithmeticObject, key));
+  } else if (specialButtons.includes(key)) {
+    doSpecialStuff(key);
+    // `=` requires special handling
+  } else if (key === "=") {
+    arithmeticObject.left = total(
+      arithmeticObject.left,
+      arithmeticObject.operator,
+      arithmeticObject.right
+    );
+    display.set(arithmeticObject.left);
+  }
+}
 
-      //send current number to display
-      display.set();
+function doSpecialStuff(key) {
+  if (key === "⌫") {
+    // removing characters from the end of the display string and the object
+    display.set(doBackspace());
+  }
+  if (key === "C") {
+    arithmeticObject.left = "";
+    arithmeticObject.operator = "";
+    arithmeticObject.right = "";
+    display.clear;
+  }
+}
 
-      // store current number in arithmeticArray[]
-      //
+function doBackspace() {
+  // if an operator isn't empty and right side isn't empty:
+  // remove character from right side
+  if (arithmeticObject.operator !== "" && arithmeticObject.right !== "") {
+    console.log(
+      "TEST: Arithmetic operator isn't empty and right side is not empty"
+    );
+    return (arithmeticObject.right = trimString(arithmeticObject.right));
 
-      break;
-    case operatorButtons.includes(key):
-      console.log("Button in operator list");
-      break;
-    case specialButtons.includes(key):
-      console.log("Button in specials list");
-      break;
-    default:
-    // if somehow an invalid button slipped through, do nothing
+    // if operator exists and right side is empty:
+    // do nothing
+  } else if (
+    arithmeticObject.operator !== "" &&
+    arithmeticObject.right === ""
+  ) {
+    console.log(
+      "TEST: Arithmetic operator isn't empty and right side is empty"
+    );
+    return arithmeticObject.left;
+
+    // no operator exists and left side isn't empty:
+    // remove character from left side
+  } else if (
+    arithmeticObject.operator === "" &&
+    arithmeticObject.right === "" &&
+    arithmeticObject.left !== ""
+  ) {
+    console.log("TEST: Arithmetic operator is empty and left side isn't empty");
+    console.log("TEST: Original string: " + arithmeticObject.left);
+    console.log("TEST: Trimmed string: " + trimString(arithmeticObject.left));
+    return (arithmeticObject.left = trimString(arithmeticObject.left));
+
+    // left side and operator are both empty:
+    // do nothing
+  } else if (arithmeticObject.operator === "" && arithmeticObject.left === "") {
+    console.log("TEST: Arithmetic operator is empty and left side is empty");
+    return arithmeticObject.left;
+  }
+}
+
+function trimString(str) {
+  console.log("TEST: Trimming string: " + str + "of length: " + str.length);
+  if (str.length > 1) {
+    return (str = str.slice(0, -1));
+  } else {
+    return (str = "");
   }
 }
 
@@ -122,166 +171,119 @@ function removeAnimation(e) {
   //pass
 }
 
-function getCurrentNumberFrom(key) {
-  //pass
+// arr = object with .left, .operator, .right
+function stowArithmetic(object, key) {
+  // No operator yet
+  if (!object.operator && operatorButtons.includes(key)) {
+    object.operator = key;
+    return object.left;
+  }
+
+  // ready to operate on both sides
+  // perform operation, pack & return left
+  if (
+    object.operator &&
+    operatorButtons.includes(key) &&
+    object.left !== "" &&
+    object.right !== ""
+  ) {
+    console.log("TEST: Running total");
+    // total and return object packed left
+    object.left = total(
+      parseFloat(object.left),
+      object.operator,
+      parseFloat(object.right)
+    );
+    console.log("TEST: Packed left: " + object.left);
+    // if key is an operator, reassign object.operator
+    if (operatorButtons.includes(key)) {
+      console.log("TEST: reassign operator");
+      object.operator = key;
+
+      // empty out the operator in prep for next go
+    } else {
+      console.log("TEST: empty operator");
+      object.operator = "";
+    }
+
+    // always empty right side after total
+    console.log("TEST: empty right side");
+    object.right = "";
+    return object.left;
+  }
+
+  // edge case - left side is empty string but right side isn't
+  // move right side to left and empty out right and operator
+  if (object.right !== "" && object.left === "") {
+    object.left = object.right;
+    object.right = "";
+    object.operator = "";
+    return object.left;
+  }
+
+  // if key is an operator, left hand side isn't empty, operator isn't empty, right side IS empty
+  // redisplay left and change the operator
+  if (
+    operatorButtons.includes(key) &&
+    object.left !== "" &&
+    object.operator !== "" &&
+    object.right === ""
+  ) {
+    object.operator = key;
+    object.operator = key;
+    return object.left;
+  }
+
+  // handle numeric strings
+  if (numberButtons.includes(key)) {
+    if (!object.operator) {
+      if (object.left === "") {
+        object.left = key;
+      } else {
+        object.left += key;
+      }
+      return object.left;
+    } else {
+      if (object.right === "") {
+        object.right = key;
+      } else {
+        object.right += key;
+      }
+      return object.right;
+    }
+  }
 }
 
-/* Everything below this point is deprecated code and should be considered non-functional */
-//
-//
-//
-//
-// That said, this will be cleaned up at a later date.
-//
-//
-//
-//
-// /* set up our variables */
-// const calculator = document.getElementById("calculator");
-// const display = document.getElementById("display");
-// const specialsDiv = document.getElementById("specials");
-// const numbersDiv = document.getElementById("numbers");
-// const operatorsDiv = document.getElementById("operators");
-// let keyAccumulator = [];
-// let pairAccumulator = [];
+function total(left, operator, right) {
+  if (left !== "" && operator !== "" && right !== "") {
+    switch (operator) {
+      case "+":
+        return add(left, right);
+        break;
+      case "-":
+        return subtract(left, right);
+      case "*":
+        return multiply(left, right);
+        break;
+      case "/":
+        return divide(left, right);
+        break;
+    }
+  } else {
+    console.log("TEST: Total called with bad state:");
+    console.log(`left: ${left}, operator: ${operator}, right ${right}`);
+  }
+}
 
-// // Buttons
-// const allButtons = Array.from(document.querySelectorAll("button"));
-// const operatorButtons = Array.from(operators.querySelectorAll("button"));
-// const numberButtonsArray = Array.from(numbersDiv.querySelectorAll("button"));
-
-// /* event handlers */
-// //
-// //
-// // kb operation
-// window.tddEventListener("keydown", keyHandler);
-// window.addEventListener("keyup", keyHandler);
-
-// // mouse operation
-// calculator.addEventListener("mousedown", keyHandler);
-// calculator.addEventListener("mouseup", keyHandler);
-
-// /* Button texts */
-// //
-// //
-// // return array of all text in all buttons
-// const getButtonTexts = function (buttons) {
-//   return buttons.map(getText);
-//   function getText(button) {
-//     return button.textContent;
-//   }
-// };
-
-// allButtonTexts = getButtonTexts(allButtons);
-// operatorButtonTexts = getButtonTexts(operatorButtons);
-// numberButtonTexts = getButtonTexts(numberButtonsArray);
-
-// // capture Enter and Escape as well for later remaping
-// allButtonTexts.push("Enter");
-// allButtonTexts.push("Escape");
-
-// // cache value for operations
-// let numberCache;
-
-// // Operator functions
-// function add(a, b) {
-//   return a + b;
-// }
-
-// function subtract(a, b) {
-//   return a - b;
-// }
-
-// function multiply(a, b) {
-//   return a * b;
-// }
-
-// function divide(a, b) {
-//   return a / b;
-// }
-
-// // call correct function for operator and two numbers
-// function operate(operator, a, b) {
-//   // convert to numbers
-//   a = parseFloat(a);
-//   b = parseFloat(b);
-
-//   //operations
-//   switch (operator) {
-//     case "+":
-//       return add(a, b);
-//       break;
-//     case "-":
-//       return subtract(a, b);
-//       break;
-//     case "*":
-//       return multiply(a, b);
-//       break;
-//     case "/":
-//       return divide(a, b);
-//       break;
-//   }
-// }
-
-// function setDisplay(number) {
-//   numberCache = display.textContent;
-//   display.textContent = number;
-// }
-
-// function keyHandler(event) {
-//   // readability
-//   let key = event.key;
-//   let target = event.target;
-//   let buttonText = target.textContent;
-//   let type = event.type;
-//   let operator = "";
-//   // capture enter, escape and mouse
-//   switch (key) {
-//     case undefined:
-//       key = buttonText;
-//       break;
-//     case "Enter":
-//       key = "=";
-//       break;
-//     case "Escape":
-//       key = "C";
-//       clearDisplay();
-//       break;
-//   }
-
-//   // only fire if buttons are in calculator
-//   if (allButtonTexts.includes(key)) {
-//     // these things should fire only on keydown/mousedown
-//     if (type === "keydown" || type === "mousedown") {
-//       // change mouse input to key input
-//       allButtons[allButtonTexts.indexOf(key)].classList.add("pressed");
-//     }
-
-//     // these things should fire only on keyup/mouseup
-//     if (type === "keyup" || type === "mouseup") {
-//       allButtons[allButtonTexts.indexOf(key)].classList.remove("pressed");
-//       console.log(keyAccumulator);
-//       if (numberButtonTexts.includes(key)) {
-//         console.log(key);
-//         keyAccumulator.push(key);
-//         setDisplay(keyAccumulator.join(""));
-//       } else if (operatorButtonTexts.includes(key)) {
-//         // refactor here
-//         // we should be operating on the value in
-//         // display as the first number and whatever
-//         // is entered after as the 2nd number.
-//         //
-//         operator = key;
-//         // pairAccumulator.push(num);
-//         keyAccumulator = [];
-//         setDisplay(operate(operator, numberCache, display.textContent));
-//       }
-//     }
-//   }
-// }
-
-// function clearDisplay() {
-//   // clear array and display
-//   Array().fill(keyAccumulator, null);
-//   display.textContent = "";
-// }
+function add(a, b) {
+  return a + b;
+}
+function subtract(a, b) {
+  return a - b;
+}
+function multiply(a, b) {
+  return a * b;
+}
+function divide(a, b) {
+  return (a / b).toFixed(2);
+}
