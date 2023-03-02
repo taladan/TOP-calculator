@@ -79,7 +79,6 @@ function handleDisplay() {
 
   // if there is a value in left and no operators, display left
   if (left !== undefined && operator === undefined) {
-    console.log("Value in left, no value in operator, displaying left");
     displayDiv.textContent = left;
     return;
 
@@ -89,9 +88,6 @@ function handleDisplay() {
     operator !== undefined &&
     right === undefined
   ) {
-    console.log(
-      "Value in left, value in operator,  no value in right, displaying left"
-    );
     displayDiv.textContent = left;
     return;
 
@@ -101,9 +97,6 @@ function handleDisplay() {
     operator !== undefined &&
     right !== undefined
   ) {
-    console.log(
-      "Value in left, value in operator, value in right, displaying right"
-    );
     displayDiv.textContent = right;
     return;
   }
@@ -133,7 +126,6 @@ function toggleExprSide() {
 }
 
 function manipulateExpression(value) {
-  console.log("Manipulate expression is passing value: " + value);
   if (inputSide === "left") {
     expression[0] = value;
   } else {
@@ -156,10 +148,6 @@ function testExpression() {
 }
 
 function calculateExpression() {
-  console.log("Calculating expression");
-  console.log("Accumulator: " + accumulator);
-  console.log("InputSide: " + inputSide);
-  console.log("Expression: " + expression);
   let a = parseFloat(expression[0]);
   let b = parseFloat(expression[2]);
   let value;
@@ -177,7 +165,6 @@ function calculateExpression() {
       value = parseFloat((a / b).toFixed(2));
       break;
   }
-  console.log("CalculateExpression returning value:> " + value);
   return value;
 }
 
@@ -216,8 +203,21 @@ function unanimate(e) {
 
 /* key handling section begin */
 function handleNumbers(key) {
-  accumulator += key;
-  return accumulator;
+  if (inputSide === "left") {
+    if (key === "." && expression[0].includes(key)) {
+      return;
+    } else {
+      accumulator += key;
+      return accumulator;
+    }
+  } else if (inputSide === "right") {
+    if (key === "." && expression[2].includes(key)) {
+      return;
+    } else {
+      accumulator += key;
+      return accumulator;
+    }
+  }
 }
 
 function handleOperators(key) {
@@ -226,6 +226,17 @@ function handleOperators(key) {
   }
   expression[1] = key;
   toggleExprSide();
+}
+
+function backspaceChar() {
+  // first clear the accumulator
+  accumulator = "";
+
+  if (inputSide === "left" && expression[0] !== undefined) {
+    expression[0] = expression[0].slice(0, -1);
+  } else if (inputSide === "right" && expression[2] !== undefined) {
+    expression[2] = expression[2].slice(0, -1);
+  }
 }
 
 function packExpression() {
@@ -239,7 +250,6 @@ function packExpression() {
 
 function handleSpecials(key) {
   // testing
-  console.log("handleSpecials function entered");
   if (key === "C") {
     clearDisplay();
   } else if (key === "=") {
