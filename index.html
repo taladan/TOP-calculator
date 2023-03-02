@@ -6,38 +6,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="styles/fontstyle.css" />
     <link rel="stylesheet" href="styles/calculator.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bree+Serif&display=swap"
+      rel="stylesheet"
+    />
     <script src="./scripts/calculator.js" defer></script>
     <title>TOP-Calculator</title>
   </head>
   <body>
-    <h1>Basic Function Calculator</h1>
-
     <div id="calculator">
-      <div id="display">25 * 5 = 125</div>
+      <div id="spacer">&nbsp;</div>
+      <div id="display">&nbsp;</div>
+      <div id="titleline">
+        <span id="mfr">Odin Instruments</span><span id="model">OI-108</span>
+      </div>
+      <div id="solar">
+        <span class="cell">&nbsp;</span><span class="cell">&nbsp;</span
+        ><span class="cell">&nbsp;</span> <span class="cell">&nbsp;</span>
+      </div>
       <div id="buttons">
         <div id="specials">
           <button id="C" class="special clear">C</button>
           <button id="⌫" class="special">&#x232b;</button>
-          <button id="=" class="special">=</button>
+          <button id="=" class="special right">=</button>
         </div>
-        <div id="operators">
-          <button id="+" class="operator">+</button>
-          <button id="-" class="operator">-</button>
-          <button id="*" class="operator">*</button>
-          <button id="/" class="operator">/</button>
-        </div>
-        <div id="numbers">
-          <button id="9" class="number">9</button>
-          <button id="8" class="number">8</button>
-          <button id="7" class="number">7</button>
-          <button id="6" class="number">6</button>
-          <button id="5" class="number">5</button>
-          <button id="4" class="number">4</button>
-          <button id="3" class="number">3</button>
-          <button id="2" class="number">2</button>
-          <button id="1" class="number">1</button>
-          <button id="0" class="number">0</button>
-          <button id="." class="number">.</button>
+        <div id="main">
+          <div id="numbers">
+            <button id="9" class="number">9</button>
+            <button id="8" class="number">8</button>
+            <button id="7" class="number">7</button>
+            <button id="6" class="number">6</button>
+            <button id="5" class="number">5</button>
+            <button id="4" class="number">4</button>
+            <button id="3" class="number">3</button>
+            <button id="2" class="number">2</button>
+            <button id="1" class="number">1</button>
+            <button id="0" class="number">0</button>
+            <button id="." class="number">.</button>
+          </div>
+          <div id="operators">
+            <button id="+" class="operator right">+</button>
+            <button id="-" class="operator right">-</button>
+            <button id="*" class="operator right">*</button>
+            <button id="/" class="operator right">/</button>
+          </div>
         </div>
       </div>
     </div>
