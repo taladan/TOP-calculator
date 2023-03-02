@@ -67,7 +67,7 @@ function eventHandler(e) {
     handleDisplay();
   }
 
-  // handleDisplay();
+  handleDisplay();
 }
 
 /* working area functions begin*/
@@ -78,17 +78,32 @@ function handleDisplay() {
   let right = expression[2];
 
   // if there is a value in left and no operators, display left
-  if (left !== "" && operator === "") {
+  if (left !== undefined && operator === undefined) {
+    console.log("Value in left, no value in operator, displaying left");
     displayDiv.textContent = left;
     return;
 
     // if there is a value in left and an operator but no value in right, display left
-  } else if (left !== "" && operator !== "" && right === "") {
+  } else if (
+    left !== undefined &&
+    operator !== undefined &&
+    right === undefined
+  ) {
+    console.log(
+      "Value in left, value in operator,  no value in right, displaying left"
+    );
     displayDiv.textContent = left;
     return;
 
     // if there is a value in left and an operator and a value in right, display right
-  } else if (left !== "" && operator !== "" && right !== "") {
+  } else if (
+    left !== undefined &&
+    operator !== undefined &&
+    right !== undefined
+  ) {
+    console.log(
+      "Value in left, value in operator, value in right, displaying right"
+    );
     displayDiv.textContent = right;
     return;
   }
@@ -216,8 +231,8 @@ function handleOperators(key) {
 function packExpression() {
   let value = calculateExpression();
   expression[0] = value;
-  expression[1] = "";
-  expression[2] = "";
+  expression[1] = undefined;
+  expression[2] = undefined;
   //toggle expression so ops can toggle it back
   toggleExprSide();
 }
@@ -228,7 +243,10 @@ function handleSpecials(key) {
   if (key === "C") {
     clearDisplay();
   } else if (key === "=") {
-    total();
+    if (exprReadyForCalculation()) {
+      packExpression();
+      toggleExprSide();
+    }
   } else if (key === "⌫") {
     backspaceChar();
   }
