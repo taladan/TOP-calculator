@@ -203,6 +203,8 @@ function packExpression() {
   expression[0] = value;
   expression[1] = "";
   expression[2] = "";
+  //toggle expression so ops can toggle it back
+  toggleExprSide();
 }
 
 function handleSpecials(key) {
