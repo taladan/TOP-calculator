@@ -42,6 +42,7 @@ button {
   min-width: 10%;
   min-height: 10%;
   font-size: large;
+  outline: 1px solid #31518d;
   border-radius: 0.3rem;
 }
 
