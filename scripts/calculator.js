@@ -43,6 +43,7 @@ window.addEventListener("keyup", unanimate);
 
 // input only
 window.addEventListener("keydown", eventHandler);
+calcDiv.addEventListener("click", eventHandler);
 
 let expression = [];
 let accumulator = "";
@@ -51,8 +52,14 @@ let inputSide = "left";
 /* initialization section end */
 
 function eventHandler(e) {
-  let key = e.key;
-  key = remapEnterAndEscape(key);
+  // console.log(e.target.textContent);
+  let key;
+  if (e.type === "click") {
+    key = e.target.textContent;
+  } else {
+    key = e.key;
+    key = remapEnterAndEscape(key);
+  }
 
   if (numbers.includes(key)) {
     manipulateExpression(handleNumbers(key));
@@ -79,8 +86,13 @@ function handleDisplay() {
 
   // if there is a value in left and no operators, display left
   if (left !== undefined && operator === undefined) {
-    displayDiv.textContent = left;
-    return;
+    if (left === Infinity) {
+      displayDiv.textContent = "To Infinity and beyond...";
+      return;
+    } else {
+      displayDiv.textContent = left;
+      return;
+    }
 
     // if there is a value in left and an operator but no value in right, display left
   } else if (
