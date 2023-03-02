@@ -60,7 +60,10 @@ function eventHandler(e) {
     key = e.key;
     key = remapEnterAndEscape(key);
   }
-
+  // edge case
+  if (key === "/") {
+    e.preventDefault();
+  }
   if (numbers.includes(key)) {
     manipulateExpression(handleNumbers(key));
     handleDisplay();
