@@ -1,477 +1,233 @@
-// get containers
+// start from fresh, rethink the whole ball of wax.
 
-// TODO:  Ensure these are used or deleted
-const calculatorDiv = document.getElementById("calculator");
-const numbersDiv = document.getElementById("numbers");
-const operatorsDiv = document.getElementById("operators");
-const specialsDiv = document.getElementById("specials");
-
-// we need event listeners for mouse and kb entry
-calculatorDiv.addEventListener("click", mouseConvertEvent);
-window.addEventListener("keydown", keyConvertEvent);
-
-// event listeners for animations
-window.addEventListener("keydown", addAnimation);
-window.addEventListener("keyup", addAnimation);
-
-//
-// Button text values
-//
-
-// String data
-const getButtonTexts = function (arrayOfButtons) {
-  return arrayOfButtons.map((button) => button.textContent);
-};
-
-// ['C', '⌫', '+', '-', '*', '/', '=', '9', '8', '7', '6', '5', '4', '3', '2', '1', '0', '.']
-const allButtons = getButtonTexts(
-  Array.from(calculatorDiv.querySelectorAll("button"))
-);
-
-// ['9', '8', '7', '6', '5', '4', '3', '2', '1', '0', '.']
-const numberButtons = getButtonTexts(
-  Array.from(numbersDiv.querySelectorAll("button"))
-);
-
-// ['+', '-', '*', '/', '=']
-const operatorButtons = getButtonTexts(
-  Array.from(operators.querySelectorAll("button"))
-);
-
-// ['C', '⌫']
-const specialButtons = getButtonTexts(
-  Array.from(specials.querySelectorAll("button"))
-);
-
-// necessary values
-const arithmeticObject = { left: "", operator: "", right: "" };
-const display = {
-  set(value) {
-    //value = value || 0;
-    document.getElementById("display").textContent = value;
-  },
-  get() {
-    return document.getElementById("display").textContent;
-  },
-  clear() {
-    const display = (document.getElementById("display").textContent = "");
-  },
-};
-
-/* Event Handling */
-
-// convert and pass to events
-function keyConvertEvent(event) {
-  let key = event.key;
-
-  // Capture common buttons to key correctly
-  if (key === "Backspace") {
-    key = "⌫";
-  } else if (key === "Escape") {
-    key = "C";
-  } else if (key === "Enter") {
-    key = "=";
-  }
-
-  if (allButtons.includes(key)) {
-    events(key);
-  }
-}
-
-// convert and pass to events
-function mouseConvertEvent(event) {
-  let key = event.target.textContent;
-  events(key);
-}
-
-function events(key) {
-  // we need to deal with special keys:
-  if (numberButtons.includes(key) || operatorButtons.includes(key)) {
-    display.set(stowArithmetic(arithmeticObject, key));
-  } else if (specialButtons.includes(key)) {
-    handleSpecials(key);
-    // `=` requires special handling
-  } else if (key === "=" && arithmeticObject.operator !== "=") {
-    arithmeticObject.left = total(
-      arithmeticObject.left,
-      arithmeticObject.operator,
-      arithmeticObject.right
-    );
-    display.set(arithmeticObject.left);
-  } else if (arithmeticObject.operator === "=") {
-    console.log("= in operator spot, panic.");
-  }
-}
-
-function handleSpecials(key) {
-  if (key === "⌫") {
-    // removing characters from the end of the display string and the object
-    display.set(doBackspace());
-  }
-  if (key === "C") {
-    arithmeticObject.left = "";
-    arithmeticObject.operator = "";
-    arithmeticObject.right = "";
-    display.clear();
-  }
-  if (key === "=") {
-    if (
-      arithmeticObject.left &&
-      arithmeticObject.operator &&
-      arithmeticObject.right
-    ) {
-      display.set(
-        total(
-          parseFloat(arithmeticObject.left),
-          arithmeticObject.operator,
-          parseFloat(arithmeticObject.right)
-        )
-      );
-    }
-  }
-}
-
-function doBackspace() {
-  // if an operator isn't empty and right side isn't empty:
-  // remove character from right side
-  if (arithmeticObject.operator !== "" && arithmeticObject.right !== "") {
-    console.log(
-      "TEST: Arithmetic operator isn't empty and right side is not empty"
-    );
-    return (arithmeticObject.right = trimString(arithmeticObject.right));
-
-    // if operator exists and right side is empty:
-    // do nothing
-  } else if (
-    arithmeticObject.operator !== "" &&
-    arithmeticObject.right === ""
-  ) {
-    console.log(
-      "TEST: Arithmetic operator isn't empty and right side is empty"
-    );
-    return arithmeticObject.left;
-
-    // no operator exists and left side isn't empty:
-    // remove character from left side
-  } else if (
-    arithmeticObject.operator === "" &&
-    arithmeticObject.right === "" &&
-    arithmeticObject.left !== ""
-  ) {
-    console.log("TEST: Arithmetic operator is empty and left side isn't empty");
-    console.log("TEST: Original string: " + arithmeticObject.left);
-    console.log("TEST: Trimmed string: " + trimString(arithmeticObject.left));
-    return (arithmeticObject.left = trimString(arithmeticObject.left));
-
-    // left side and operator are both empty:
-    // do nothing
-  } else if (arithmeticObject.operator === "" && arithmeticObject.left === "") {
-    console.log("TEST: Arithmetic operator is empty and left side is empty");
-    return arithmeticObject.left;
-  }
-}
-
-function trimString(str) {
-  console.log("TEST: Trimming string: " + str + "of length: " + str.length);
-  if (str.length > 1) {
-    return (str = str.slice(0, -1));
-  } else {
-    return (str = "");
-  }
-}
-
-function addAnimation(e) {
-  //pass
-}
-
-function removeAnimation(e) {
-  //pass
-}
+// 1 + 1 = 2
 
 /*
+  To get the above in a calculator, first we push the button '1'.  This is true for any number up to infinity
+  we just keep pushing numbers and the calculator pushes them into the display for use after an operator key is pushed
+  once an operator is pushed, it puts that operation on the stack and then moves to inputing a fresh number.  
+  once another operator is pushed (or equals) it should then perform the calculation, remove the previous operator and 
+  pack everything to the left hand side, allowing only an operator to be added if you want to use that sum to continue a 
+  calculation, or another number if you want to perform a new calculation.
 
-Regarding the NaN error:
-
-
-[2:00 PM]waVE: @taladan  figured out where NaN is happening.  after you get an
-answer like  65 / 7  =  9.25, if you don't clear the display, the next
-operation will throw NaN. Bill is in the mail. And by clear, I mean the back
-button on the calc -- clear didn't work for me.    yep, the order [ 2, *, 4,
-  =, 6, -, 3 , = ]  NaN. Hope that helps
-
-  */
-
-// arr = object with .left, .operator, .right
-
-/* 
-I just want to talk through the logic of what we're doing here
-
-We receive an operator object that has three values:  'left', 'operator', and 'right'.
-
-we also recieve a key.
-
-A key can be:
-
-A number = ".0-9"
-An operator = "+, -, *, /"
-An equivalency: "="
-
-if the key is a number character and there is no value in
-    arithmeticObject.right and there is no value in arithmeticObject.operator:
-  character must be concatenated into arithmeticObject.left;
-  
-  --- if the key is a number character and there is a value in
-    arithmeticObject.right and there is no value in arithmeticObject.operator:
-  we have hit error state reset all values to initial state
-
-  --- if the key is a number character and there is a value in
-    arithmeticObject.right and there is a value in arithmeticObject.operator:
-  character must be concatenated into arithmeticObject.right;
-
-  --- if the key is an operator and there is no number in arithmeticObject.left
-  and there is no value in arithmeticObject.right: we have hit error state:
-  reset all values to initial state and ignore the key
-
-  --- if the key is an operator and there is a value in arithmeticObject.left
-  and there is no value in arithmeticObject.operator and there is no value in
-    arithmeticObject.right: the key character must be stored in
-    arithmeticObject.operator;
-
-  --- if the key is an operator and there is a value in arithmeticObject.left
-  and there is no value in arithmeticObject.operator and there is a value in
-    arithmeticObject.right: we have hit error state: reset all values to
-  initial state and ignore the key
-  
-  --- if the key is an operator and there is a value in arithmeticObject.left
-  and there is a value in arithmeticObject.operator and there is a value in
-    artihmeticObject.right: run the total() function passing left, operator,
-    and right.  Total() will return a single value that should pack on the
-  left, then the new operator keyed in should be added to
-  arithmeticObject.operator
-  
-
- --- if the key is an '=' and there is a value in arithmeticObject.left and a value in arithmeticObject.operator and arithmetciObject.right:
-   run the total, passing left, operator and right, display the value and reset the left, operator, and right values to initial state.
-
- --- if the key is an '=' and there is no value in arithmeticObject.left OR no value in arithmeticObject.right:
-  ignore the keypress and return whatever value is in the display to be packed to the left
-
- ---if the key is an '=' and there is a value in arithmeticObject.left but no value in arithmeticObject.right:
-  ignore the keypress and return whatever value is in the display to be packed to the left
-
- --- NOTE:  = SHOULD NEVER BE PUT IN arithmeticObject.operator
+  Once enter/= is pressed, the operation is run (assuming it can be run) and everything is totalled and put on display
+  after = is pressed, we will listen for operator keys or number keys and act accordingly as previously stated.
 
 */
 
-// function stowArithmetic2(object, key) {
-//   if (object.left === NaN) {
-//     object.left = "";
-//   }
-//   // No operator yet
-//   if (!object.operator && operatorButtons.includes(key)) {
-//     object.operator = key;
-//     return object.left;
-//   }
+/* initialization section begin */
+const getButtonTexts = function (arrayOfButtons) {
+  return arrayOfButtons.map((button) => button.textContent);
+};
+const calcDiv = document.getElementById("calculator");
+const calcButtons = calcDiv.querySelectorAll("button");
+const calculator = getButtonTexts(Array.from(calcButtons));
 
-//   // ready to operate on both sides
-//   // perform operation, pack & return left
-//   if (
-//     (object.operator !== "" || object.operator !== "=") &&
-//     operatorButtons.includes(key) &&
-//     object.left !== "" &&
-//     object.right !== ""
-//   ) {
-//     console.log("TEST: Running total");
-//     // total and return object packed left
-//     object.left = total(
-//       parseFloat(object.left),
-//       object.operator,
-//       parseFloat(object.right)
-//     );
-//     console.log("TEST: Packed left: " + object.left);
-//     // if key is an operator, reassign object.operator
-//     if (operatorButtons.includes(key)) {
-//       console.log("TEST: reassign operator");
-//       object.operator = key;
+const displayDiv = document.getElementById("display");
 
-//       // empty out the operator in prep for next go
-//     } else {
-//       console.log("TEST: empty operator");
-//       object.operator = "";
-//     }
+const numDiv = document.getElementById("numbers");
+const numButtons = numDiv.querySelectorAll("button");
+const numbers = getButtonTexts(Array.from(numButtons));
 
-//     // always empty right side after total
-//     console.log("TEST: empty right side");
-//     object.right = "";
-//     return object.left;
-//   }
+const opDiv = document.getElementById("operators");
+const opButtons = opDiv.querySelectorAll("button");
+const operators = getButtonTexts(Array.from(opButtons));
 
-//   // edge case - left side is empty string but right side isn't
-//   // move right side to left and empty out right and operator
-//   if (object.right !== "" && object.left === "") {
-//     object.left = object.right;
-//     object.right = "";
-//     object.operator = "";
-//     return object.left;
-//   }
+const specDiv = document.getElementById("specials");
+const specButtons = specDiv.querySelectorAll("button");
+const specials = getButtonTexts(Array.from(specButtons));
 
-//   // if key is an operator, left hand side isn't empty, operator isn't empty, right side IS empty
-//   // redisplay left and change the operator
-//   if (
-//     operatorButtons.includes(key) &&
-//     object.left !== "" &&
-//     object.operator !== "" &&
-//     object.right === ""
-//   ) {
-//     object.operator = key;
-//     object.operator = key;
-//     return object.left;
-//   }
+// animation of buttons only
+window.addEventListener("keydown", animate);
+window.addEventListener("keyup", unanimate);
 
-//   // handle numeric strings
-//   if (numberButtons.includes(key)) {
-//     if (!object.operator) {
-//       if (object.left === "") {
-//         object.left = key;
-//       } else {
-//         object.left += key;
-//       }
-//       return object.left;
-//     } else {
-//       if (object.right === "") {
-//         object.right = key;
-//       } else {
-//         object.right += key;
-//       }
-//       return object.right;
-//     }
-//   }
-// }
+// input only
+window.addEventListener("keydown", eventHandler);
 
-function resetValues() {
-  arithmeticObject.left = "";
-  arithmeticObject.operator = "";
-  arithmeticObject.right = "";
+let expression = [];
+let accumulator = "";
+let inputSide = "left";
+
+/* initialization section end */
+
+function eventHandler(e) {
+  let key = e.key;
+  key = remapEnterAndEscape(key);
+
+  if (numbers.includes(key)) {
+    manipulateExpression(handleNumbers(key));
+  }
+  if (operators.includes(key)) {
+    handleOperators(key);
+  }
+  if (specials.includes(key)) {
+    handleSpecials(key);
+  }
+
+  handleDisplay();
 }
 
-function total(left, operator, right) {
-  switch (operator) {
+/* working area functions begin*/
+
+function handleDisplay() {
+  let displayValue;
+  if (inputSide === "left") {
+    displayValue = expression[0];
+  } else {
+    displayValue = expression[2];
+  }
+  displayDiv.textContent = displayValue;
+}
+
+function clearDisplay() {
+  displayDiv.textContent = "";
+  accumulator = "";
+  inputSide = "left";
+  clearExpression();
+}
+
+/* working area functions end */
+
+/* expression manipulation functions begin */
+
+function toggleExprSide() {
+  // left == expression[0]
+  // right == expression[2]
+  if (inputSide === "left") {
+    inputSide = "right";
+    accumulator = "";
+  } else {
+    inputSide = "left";
+    accumulator = "";
+  }
+}
+
+function manipulateExpression(value) {
+  console.log("Manipulate expression is passing value: " + value);
+  if (inputSide === "left") {
+    expression[0] = value;
+  } else {
+    expression[2] = value;
+  }
+}
+
+function exprReadyForCalculation() {
+  return (
+    typeof expression[0] !== "undefined" &&
+    typeof expression[1] !== "undefined" &&
+    typeof expression[2] !== "undefined"
+  );
+}
+
+function testExpression() {
+  expression[0] = "1.11678";
+  expression[1] = "+";
+  expression[2] = "1.32678";
+}
+
+function calculateExpression() {
+  console.log("Calculating expression");
+  console.log("Accumulator: " + accumulator);
+  console.log("InputSide: " + inputSide);
+  console.log("Expression: " + expression);
+  let a = parseFloat(expression[0]);
+  let b = parseFloat(expression[2]);
+  let value;
+  switch (expression[1]) {
     case "+":
-      value = add(left, right);
-      resetValues();
-      return value;
+      value = parseFloat((a + b).toFixed(2));
       break;
     case "-":
-      value = subtract(left, right);
-      resetValues();
-      return value;
+      value = parseFloat((a - b).toFixed(2));
+      break;
     case "*":
-      value = multiply(left, right);
-      resetValues();
-      return value;
+      value = parseFloat((a * b).toFixed(2));
       break;
     case "/":
-      value = divide(left, right);
-      resetValues();
-      return value;
+      value = parseFloat((a / b).toFixed(2));
       break;
   }
+  console.log("CalculateExpression returning value:> " + value);
+  return value;
 }
 
-function add(a, b) {
-  return a + b;
+function clearExpression() {
+  expression.length = 0;
 }
-function subtract(a, b) {
-  return a - b;
-}
-function multiply(a, b) {
-  return a * b;
-}
-function divide(a, b) {
-  return (a / b).toFixed(2);
-}
+/* expression manipulation functions end */
 
-function stowArithmetic(object, key) {
-  if (object.left === NaN) {
-    object.left = "";
-  }
-  // No operator yet
-  if (!object.operator && operatorButtons.includes(key)) {
-    object.operator = key;
-    return object.left;
-  }
-
-  // ready to operate on both sides
-  // perform operation, pack & return left
-  if (
-    (object.operator !== "" || object.operator !== "=") &&
-    operatorButtons.includes(key) &&
-    object.left !== "" &&
-    object.right !== ""
-  ) {
-    console.log("TEST: Running total");
-    // total and return object packed left
-    object.left = total(
-      parseFloat(object.left),
-      object.operator,
-      parseFloat(object.right)
-    );
-    console.log("TEST: Packed left: " + object.left);
-    // if key is an operator, reassign object.operator
-    if (operatorButtons.includes(key)) {
-      console.log("TEST: reassign operator");
-      object.operator = key;
-
-      // empty out the operator in prep for next go
-    } else {
-      console.log("TEST: empty operator");
-      object.operator = "";
-    }
-
-    // always empty right side after total
-    console.log("TEST: empty right side");
-    object.right = "";
-    return object.left;
-  }
-
-  // edge case - left side is empty string but right side isn't
-  // move right side to left and empty out right and operator
-  if (object.right !== "" && object.left === "") {
-    object.left = object.right;
-    object.right = "";
-    object.operator = "";
-    return object.left;
-  }
-
-  // if key is an operator, left hand side isn't empty, operator isn't empty, right side IS empty
-  // redisplay left and change the operator
-  if (
-    operatorButtons.includes(key) &&
-    object.left !== "" &&
-    object.operator !== "" &&
-    object.right === ""
-  ) {
-    object.operator = key;
-    object.operator = key;
-    return object.left;
-  }
-
-  // handle numeric strings
-  if (numberButtons.includes(key)) {
-    if (!object.operator) {
-      if (object.left === "") {
-        object.left = key;
-      } else {
-        object.left += key;
+/* animation section begin */
+function animate(e) {
+  let key = e.key;
+  key = remapEnterAndEscape(key);
+  if (calculator.includes(key)) {
+    for (let button of calcButtons) {
+      if (button.textContent === key) {
+        document.getElementById(key).classList.add("pressed");
       }
-      return object.left;
-    } else {
-      if (object.right === "") {
-        object.right = key;
-      } else {
-        object.right += key;
-      }
-      return object.right;
     }
   }
+  return;
 }
+
+function unanimate(e) {
+  let key = e.key;
+  key = remapEnterAndEscape(key);
+  if (calculator.includes(key)) {
+    for (let button of calcButtons) {
+      if (button.textContent === key) {
+        document.getElementById(key).classList.remove("pressed");
+      }
+    }
+  }
+  return;
+}
+/* animation section end */
+
+/* key handling section begin */
+function handleNumbers(key) {
+  accumulator += key;
+  return accumulator;
+}
+
+function handleOperators(key) {
+  if (exprReadyForCalculation()) {
+    packExpression();
+  }
+  expression[1] = key;
+  toggleExprSide();
+}
+
+function packExpression() {
+  let value = calculateExpression();
+  expression[0] = value;
+  expression[1] = "";
+  expression[2] = "";
+}
+
+function handleSpecials(key) {
+  // testing
+  console.log("handleSpecials function entered");
+  if (key === "C") {
+    clearDisplay();
+  } else if (key === "=") {
+    total();
+  } else if (key === "⌫") {
+    backspaceChar();
+  }
+  return;
+}
+
+function remapEnterAndEscape(key) {
+  if (key === "Enter") {
+    return "=";
+  } else if (key === "Escape" || key === "c") {
+    return "C";
+  } else if (key === "Backspace") {
+    return "⌫";
+  } else {
+    return key;
+  }
+}
+
+/* end key handling section */
