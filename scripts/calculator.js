@@ -56,27 +56,42 @@ function eventHandler(e) {
 
   if (numbers.includes(key)) {
     manipulateExpression(handleNumbers(key));
+    handleDisplay();
   }
   if (operators.includes(key)) {
     handleOperators(key);
+    handleDisplay();
   }
   if (specials.includes(key)) {
     handleSpecials(key);
+    handleDisplay();
   }
 
-  handleDisplay();
+  // handleDisplay();
 }
 
 /* working area functions begin*/
 
 function handleDisplay() {
-  let displayValue;
-  if (inputSide === "left") {
-    displayValue = expression[0];
-  } else {
-    displayValue = expression[2];
+  let left = expression[0];
+  let operator = expression[1];
+  let right = expression[2];
+
+  // if there is a value in left and no operators, display left
+  if (left !== "" && operator === "") {
+    displayDiv.textContent = left;
+    return;
+
+    // if there is a value in left and an operator but no value in right, display left
+  } else if (left !== "" && operator !== "" && right === "") {
+    displayDiv.textContent = left;
+    return;
+
+    // if there is a value in left and an operator and a value in right, display right
+  } else if (left !== "" && operator !== "" && right !== "") {
+    displayDiv.textContent = right;
+    return;
   }
-  displayDiv.textContent = displayValue;
 }
 
 function clearDisplay() {
